@@ -75,7 +75,7 @@ function updateStudents(newStudent, oldStudent) {
         Object.assign(oldStudent, newStudent);
 }
 
-// delete student by id and bulk
+// delete student by id 
 function deleteStudent(req, resp){
     const urls = req.url.split("/");
     const userId = Number(urls[urls.length-1]);
