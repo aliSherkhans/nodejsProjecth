@@ -7,7 +7,7 @@ function userIdentification(req, res, next){
     if(!userId){
         res.status(500).send("Invalid Id");
     }else {
-        const filterData = students.filter(student => student.studentid === userId);
+        const filterData = students.filter(student => student.id === userId);
         if(filterData.length === 1){
             next();
         }else if (filterData.length > 1){

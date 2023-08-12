@@ -16,7 +16,7 @@ function getAllStudent(req, resp){
 // GET student data by Id
 function getStudentById(req, resp){
     const studentId = Number(req.params.studentId)
-    const filterStudentData = students.filter(student => student.studentid === studentId);
+    const filterStudentData = students.filter(student => student.id === studentId);
     const sendData = {
         status : "Success",
         data : {
