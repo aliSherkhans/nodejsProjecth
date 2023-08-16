@@ -5,6 +5,9 @@ const studentRouter = express.Router();
 
 studentRouter.route("").get(studentApi.getAllStudent).post(studentApi.createStudent).delete(studentApi.deleteStudent).put(studentApi.updateStudent);
 
-studentRouter.route("/:studentId").get(userIdentification, studentApi.getStudentById).delete(userIdentification, studentApi.deleteStudent).put(userIdentification, studentApi.updateStudent);
+studentRouter.route("/:mobile").get(studentApi.getStudentByMobile).delete(studentApi.deleteStudent)
+.put(studentApi.updateStudent);
+
+studentRouter.param("mobile", userIdentification)
 
 module.exports = studentRouter;

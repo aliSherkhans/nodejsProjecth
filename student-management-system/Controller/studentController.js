@@ -1,108 +1,102 @@
-const fs = require("fs")
-const students = JSON.parse(fs.readFileSync("data/students.json", {encoding : "utf-8"}));
+const studentModel = require("../database/model/studentSchema.js");
+async function getAllStudent(req, resp){
+    const students = await studentModel.find();
+   if(students.length > 0){
+     resp.status(200).send(students);
+   }else{
+     resp.status(500).send("Database is empty no recored find");
+   }
+}
 
-// GET all student data
-function getAllStudent(req, resp){
-    const studentData = {
-        status : "success",
-        data:{
-            students,
+async function getStudentByMobile(req, resp){
+    const userMobile = JSON.parse(req.params.mobile);
+    console.log("parma ",userMobile);
+    if(userMobile.length > 0){
+        let response = [];
+        try{
+        for(let mobile of userMobile){
+            const student = await studentModel.find({"mobile" : mobile});
+                if(student.length > 0){
+                    response.push(...student);
+            } 
+        }
+    } catch (error) {
+        resp.status(500).send({"Error " : error.message});
+    }
+        resp.status(200).send(response);
+    }else{
+        const userMobile = req.params.mobile;
+        const student = await studentModel.find({"mobile" : userMobile});
+        if(student.length > 0){
+            resp.status(200).send(student);
+        }else{
+            resp.status(500).send({"Error " : "error.message"})
         }
     }
-    resp.json(studentData)
+}
+
+async function createStudent(req, resp){
+    const reqBody = req.body;
+    if(reqBody.length > 0){
+        try{
+        for(let students of reqBody){
+        const student = new studentModel(students);
+        if(student){
+            await student.save();
+        }
+        }
+        resp.status(200).send("create student bulk");
+    } catch (error){
+        resp.status(500).send({"Error" : error.message});
+    }
+    }else{
+        const student = new studentModel(reqBody);
+        if(student){
+            await student.save();
+            resp.status(200).send("create student");
+        }
+    }
+}
+
+async function updateStudent(req, resp){
+    const reqBody = req.body;
+    console.log(reqBody);
+    try{
+    if(reqBody.length > 0){
+            for(let student of reqBody){
+                await studentModel.updateOne({"mobile" : student.mobile}, {$set : {"class" : student.class}});
+            }
+            resp.status(200).send("update student bulk");
+        }else {
+        await studentModel.updateOne({"mobile" : reqBody.mobile}, {$set : {"class" : reqBody.class}});
+        resp.status(200).send("update Student");
+    } 
+    }catch (error){
+    resp.status(500).send("Error ", error.message);
+}
 };
 
-
-// GET student data by Id
-function getStudentById(req, resp){
-    const studentId = Number(req.params.studentId)
-    const filterStudentData = students.filter(student => student.id === studentId);
-    const sendData = {
-        status : "Success",
-        data : {
-            student : filterStudentData[0]
+async function deleteStudent(req, resp){
+    const userMobile = JSON.parse(req.params.mobile);
+    try{
+    if(userMobile.length > 0){
+        for(let mobile of userMobile){
+            await studentModel.deleteOne({"mobile" : mobile});
         }
+        resp.status(500).send("delete student bulk");
+    }else {
+        const userMobile = req.params.mobile
+        await studentModel.deleteOne({"mobile" : userMobile});
+        resp.status(200).send("delete student");
     }
-    resp.status(200).json(sendData);
+} catch (error) {
+       resp.status(500).send({"Error " : error.message});
 }
-
-// Create student data
-function createStudent(req, resp){
-    const studentData = req.body;
-    if(studentData.length > 0){
-        const studentData = req.body;
-        studentData.forEach(student => {
-            createRespone(student);
-        });
-        resp.send("Successfully Cerate by bulk")
-    }else{
-        createRespone(studentData)
-       resp.send("Successfully Cerate by id")  
-    }
-    fs.writeFileSync("data/students.json", JSON.stringify(students));
-}
-
-function createRespone(student) {
-    const studentid = students[students.length - 1].studentid + 1;
-    const studentResponse = Object.assign({ studentid }, student);
-    students.push(studentResponse);
-}
-
-// UPDATE student data by Id and Bulk
-function updateStudent(req, resp){
-    const urls = req.url.split("/");
-    const userId = Number(urls[urls.length-1]);
-    const reqBody = req.body;
-    if(reqBody.length > 0){
-            reqBody.forEach(newStudent => {
-                students.forEach(oldStudent => {
-                 if (newStudent.studentid === oldStudent.studentid) {    
-                       updateStudents(newStudent, oldStudent);
-                    }
-            })})       
-            resp.send("Successfully update by bulk") 
-    }else if(userId){
-            const findStudent = students.filter(student => student.studentid === userId);
-            updateStudents(reqBody, findStudent[0]);
-            resp.send("Successfully update by id")
-    }else{
-            resp.status(404).send("Not Found")
-    }
-      fs.writeFileSync("data/students.json", JSON.stringify(students));
-}
-
-function updateStudents(newStudent, oldStudent) {
-        Object.assign(oldStudent, newStudent);
-}
-
-// delete student by id 
-function deleteStudent(req, resp){
-    const urls = req.url.split("/");
-    const userId = Number(urls[urls.length-1]);
-    const reqBody = req.body;
-    if(reqBody.length > 0){
-        reqBody.forEach(delStudent => {
-            students.forEach(oldStudent => {
-                if(oldStudent.studentid === delStudent.id){
-                    const findIndex = students.findIndex(student => student.studentid === delStudent.id);
-                    students.splice(findIndex, 1);
-                }
-            })
-        })
-        resp.status(200).send("Successfully delete by bulk")
-    }else if(userId){
-        const findIndex = students.findIndex(student => student.studentid === userId);
-        students.splice(findIndex, 1);
-        resp.status(200).send("Successfully delete by id")
-    }else{
-        resp.status(404).send("Not Found");
-    }
-    fs.writeFileSync("data/students.json", JSON.stringify(students));
 }
 
 module.exports = {
     getAllStudent,
-    getStudentById,
+    getStudentByMobile,
     createStudent,
     updateStudent,
     deleteStudent
