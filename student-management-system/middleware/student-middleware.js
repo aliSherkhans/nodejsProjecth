@@ -23,11 +23,9 @@ async function checkStudent(resp, mobile) {
   if (student.length === 0) {
     resp.status(404).send({ error: "Student not found given by mobile" });
   } else if (student.length > 1) {
-    resp
-      .status(400)
-      .send({
-        error: "More than one record found for the given mobile number.",
-      });
+    resp.status(400).send({
+      error: "More than one record found for the given mobile number.",
+    });
   }
 }
 module.exports = studentValidator;

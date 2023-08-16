@@ -5,41 +5,33 @@ async function getAllTeacher(req, resp) {
   if (teachers.length > 0) {
     resp.status(200).send(teachers);
   } else {
-    resp.status(500).send("Database is empty no recored find");
+    resp.status(500).send("Database is empty no record found");
   }
 }
 
 async function getTeacherByMobile(req, resp) {
   const userMobile = JSON.parse(req.params.mobile);
-  console.log("parma ", userMobile);
   if (userMobile.length > 0) {
     let response = [];
     try {
       for (let mobile of userMobile) {
         const teacher = await teacherModel.find({ mobile: mobile });
-        if (teacher.length > 0) {
-          response.push(...teacher);
-        }
+        response.push(...teacher);
       }
     } catch (error) {
-      resp.status(500).send({ "Error ": error.message });
+      errorShow(resp, error);
     }
     resp.status(200).send(response);
   } else {
     const userMobile = req.params.mobile;
     const teacher = await teacherModel.find({ mobile: userMobile });
-    if (teacher.length > 0) {
-      resp.status(200).send(teacher);
-    } else {
-      resp.status(500).send({ "Error ": "error.message" });
-    }
+    resp.status(200).send(teacher);
   }
 }
 
 async function createTeacher(req, resp) {
   const reqBody = req.body;
   if (reqBody.length > 0) {
-    console.log("enter");
     try {
       for (let teachers of reqBody) {
         const teacher = new teacherModel(teachers);
@@ -49,10 +41,9 @@ async function createTeacher(req, resp) {
       }
       resp.status(200).send("create teacher bulk");
     } catch (error) {
-      resp.status(500).send({ Error: error.message });
+      errorShow(resp, error);
     }
   } else {
-    console.log("single");
     const teacher = new teacherModel(reqBody);
     if (teacher) {
       await teacher.save();
@@ -63,7 +54,6 @@ async function createTeacher(req, resp) {
 
 async function updateTeacher(req, resp) {
   const reqBody = req.body;
-  console.log(reqBody);
   try {
     if (reqBody.length > 0) {
       for (let teaccher of reqBody) {
@@ -81,9 +71,10 @@ async function updateTeacher(req, resp) {
       resp.status(200).send("update Teacher");
     }
   } catch (error) {
-    resp.status(500).send("Error ", error.message);
+    errorShow(resp, error);
   }
 }
+
 async function deleteTeacher(req, resp) {
   const userMobile = JSON.parse(req.params.mobile);
   try {
@@ -98,8 +89,12 @@ async function deleteTeacher(req, resp) {
       resp.status(200).send("delete teacher");
     }
   } catch (error) {
-    resp.status(500).send({ "Error ": error.message });
+    errorShow(resp, error);
   }
+}
+
+function errorShow(resp, error) {
+  resp.status(500).send({ "Error ": error.message });
 }
 
 module.exports = {

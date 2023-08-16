@@ -23,12 +23,9 @@ async function checkTeacher(resp, mobile) {
   if (teacher.length === 0) {
     resp.status(404).send({ error: "teacher not found given by mobile" });
   } else if (teacher.length > 1) {
-    resp
-      .status(400)
-      .send({
-        error: "More than one record found for the given mobile number.",
-      });
+    resp.status(400).send({
+      error: "More than one record found for the given mobile number.",
+    });
   }
 }
-
 module.exports = teacherValidator;
