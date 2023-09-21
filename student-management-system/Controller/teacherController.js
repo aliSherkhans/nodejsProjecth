@@ -1,5 +1,4 @@
 const teacherModel = require("../database/model/teacherSchema.js");
-
 async function getAllTeacher(req, resp) {
   const teachers = await teacherModel.find();
   if (teachers.length > 0) {
@@ -8,7 +7,6 @@ async function getAllTeacher(req, resp) {
     resp.status(500).send("Database is empty no record found");
   }
 }
-
 async function getTeacherByMobile(req, resp) {
   const userMobile = JSON.parse(req.params.mobile);
   if (userMobile.length > 0) {
@@ -28,7 +26,6 @@ async function getTeacherByMobile(req, resp) {
     resp.status(200).send(teacher);
   }
 }
-
 async function createTeacher(req, resp) {
   const reqBody = req.body;
   if (reqBody.length > 0) {
@@ -51,7 +48,6 @@ async function createTeacher(req, resp) {
     }
   }
 }
-
 async function updateTeacher(req, resp) {
   const reqBody = req.body;
   try {
@@ -74,7 +70,6 @@ async function updateTeacher(req, resp) {
     errorShow(resp, error);
   }
 }
-
 async function deleteTeacher(req, resp) {
   const userMobile = JSON.parse(req.params.mobile);
   try {
@@ -92,11 +87,9 @@ async function deleteTeacher(req, resp) {
     errorShow(resp, error);
   }
 }
-
 function errorShow(resp, error) {
   resp.status(500).send({ "Error ": error.message });
 }
-
 module.exports = {
   getAllTeacher,
   getTeacherByMobile,
