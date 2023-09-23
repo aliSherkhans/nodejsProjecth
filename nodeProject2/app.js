@@ -17,8 +17,8 @@ app.route("/").get((req, resp)=>{
 
 //USING ROUTES
 
-app.route("/api/v1/user", authRouter);
-app.route("/api/v1/movies", moviesRouter);
+app.use("/api/v1/user", authRouter);
+app.use("/api/v1/movies", moviesRouter);
 
 app.route("*", (req, resp, next)=>{
     const error = new CustomError(`Can not find ${req.originalUrl} on the server!`, 404)

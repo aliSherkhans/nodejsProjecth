@@ -3,6 +3,7 @@ const dotEnv = require("dotenv");
 dotEnv.config({path : "./config.env"})
 
 const devErrors = (resp, error)=>{
+    console.log("dev")
     resp.status(error.statusCode).json({
         status : error.status,
         message : error.message,
@@ -33,12 +34,13 @@ const validationErrorHandler = (err) => {
 
 const prodErrors = (resp, error)=>{
     if(error.isOperational){
-        res.status(error.statusCode).json({
+        console.log("prod");
+        resp.status(error.statusCode).json({
             status: error.statusCode,
             message: error.message,
           });
     }else{
-        res.status(500).json({
+        resp.status(500).json({
             status: "error",
             message: "Something went wrong! Please try again later.",
           });
@@ -46,11 +48,14 @@ const prodErrors = (resp, error)=>{
 }
 
   module.exports = (error, req, resp,)=>{
+    console.log("globle");
     error.statusCode = error.statusCode || 500
     error.status = error.status || "error"
 
+
     if(process.env.NODE_DEV === "development"){
-        devErrors(resp, error);
+        // devErrors(resp, error);
+        prodErrors(resp, error);
     }else{
         if(error.name === "CastError"){
             error = castErrorHandler(error)
