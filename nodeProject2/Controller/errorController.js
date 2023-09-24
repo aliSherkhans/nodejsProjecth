@@ -13,24 +13,32 @@ const devErrors = (resp, error)=>{
 }
 
 const castErrorHandler = (error)=>{
-    const msg = `Invalid value for ${err.path}: ${err.value}!`
+    const msg = `Invalid value for ${error.path}: ${error.value}!`
    return new CustomError(msg, 400)
 }
 
 const duplicateKeyErrorHandler = (error)=>{
-    const name = error.keyValue.name;
-    const msg = `There is already a movie with name ${name}. Please use another name!`;
+    const value = error.keyValue.email;
+    const msg = `There is already a exists with email ${value}.`;
   
     return new CustomError(msg, 400);
 }
 
-const validationErrorHandler = (err) => {
-    const errors = Object.values(err.errors).map((val) => val.message);
+const validationErrorHandler = (error) => {
+    const errors = Object.values(error.errors).map((val) => val.message);
     const errorMessages = errors.join(". ");
     const msg = `Invalid input data: ${errorMessages}`;
   
     return new CustomError(msg, 400);
   };
+
+const ObjectParameterError = ()=>{
+    return new CustomError("intrenal server error", 500)
+}  
+
+const JsonWebTokenError = ()=>{
+    return new CustomError("Invalid token authentication fields", 401);
+}
 
 const prodErrors = (resp, error)=>{
     if(error.isOperational){
@@ -47,16 +55,13 @@ const prodErrors = (resp, error)=>{
     }
 }
 
-  module.exports = (error, req, resp,)=>{
-    console.log("globle");
+  module.exports = (error, req, resp, next)=>{
+    console.log("globle", error.name);
     error.statusCode = error.statusCode || 500
     error.status = error.status || "error"
 
 
-    if(process.env.NODE_DEV === "development"){
-        // devErrors(resp, error);
-        prodErrors(resp, error);
-    }else{
+    if(process.env.NODE_DEV === "production"){
         if(error.name === "CastError"){
             error = castErrorHandler(error)
         }
@@ -67,6 +72,16 @@ const prodErrors = (resp, error)=>{
             error = validationErrorHandler(error);
         }
 
+        if(error.name === "ObjectParameterError"){
+            error = ObjectParameterError(error)
+        }
+
+        if(error.name === "JsonWebTokenError"){
+            error = JsonWebTokenError(error)
+        }
+
         prodErrors(resp, error);
+    }else{
+      devErrors(resp, error);
     }
   }

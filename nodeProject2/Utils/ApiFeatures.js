@@ -1,14 +1,16 @@
-const movieModel = require("../Database/model/moviesModel.js");
+const moviesModel = require("../Database/model/moviesModel.js");
 
 class ApiFeature{
     constructor(query, queryObj){
         this.query = query;
         this.queryObj = queryObj;
+
     }
+
 
     filter(){
         const copyQueryObj = {...this.queryObj};
-        const mongodbObjKey = [...Object.keys(movieModel.schema.obj)];
+        const mongodbObjKey = [...Object.keys(moviesModel.schema.obj)];
         const queryObjKey = [Object.keys(this.queryObj)];
         queryObjKey.forEach((key)=>{
             if(!mongodbObjKey.includes(key)){
@@ -18,24 +20,24 @@ class ApiFeature{
         
         const queryStr = JSON.stringify(copyQueryObj);
         const queryStrReplace = queryStr.replace(/\b(gte|gt|lte|le|eq)\b/gi, (match)=>`$${match}`);
-        const queryObj = JSON.parse(queryStrReplace);
-        this.query = this.query.find(queryObj);
+        const queryObje = JSON.parse(queryStrReplace);
+        this.query = this.query.find(queryObje);
 
         return this;
     }
 
     sort(){
-        if(req.queryObj.sort){
+        if(this.queryObj.sort){
             const sortBy = this.queryObj.sort.split(",").join(" ");
             this.query = this.query.sort(sortBy);
         }else{
-            this.query = this.query.sort("-rates");
+            this.query = this.query.sort("-ratings");
         }
         return this
     }
 
     limitFields(){
-            if(req.queryObj.limitField){
+            if(this.queryObj.limitField){
                 const limitField = this.queryObj.limitField.split(",").join(" ");
                 this.query = this.query.select(limitField);
             }else{
@@ -45,8 +47,8 @@ class ApiFeature{
         }
 
         paginate(){
-            const page = req.queryObj.page || 1;
-            const limit = req.query.limit || 3;
+            const page = this.queryObj.page*1 || 1;
+            const limit = this.queryObj.limit*1 || 3;
             const skip = (page - 1) * limit;
             this.query = this.query.skip(skip).limit(limit);
 

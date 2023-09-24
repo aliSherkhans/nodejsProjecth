@@ -36,18 +36,83 @@ exports.logIn = asyncErrorHandler(async (req, resp, next) => {
       await userModel.findOneAndUpdate({ email: userDetails.email }, {$set : {token : token}})
     } else {
       const error = new CustomError("Password incorrect", 400);
-      next(error);
-      return;
+      return next(error);
     }
   } else {
     const error = new CustomError("User not found", 404);
-    next(error);
-    return;
+    return next(error);
   }
 
-  // resp.status(200).json({
-  //   status: "Success",
-  //   message: "LogIn successfully",
-  //   token,
-  // });
+  resp.status(200).json({
+    status: "Success",
+    message: "LogIn successfully",
+    token,
+  });
 });
+
+exports.updateProfile = asyncErrorHandler(async (req, resp ,next)=>{
+  const userExists = await userModel.findById(req.params.id);
+
+  if(!userExists){
+    const error = new CustomError("User Not Found", 404);
+    return next(error)
+  }
+
+  await userModel.findByIdAndUpdate(req.params.id, {$set : req.body})
+  
+  resp.status(200).json({
+    status : "Success",
+    message : "Update profile"
+  })
+})
+
+exports.logout = asyncErrorHandler(async (req, resp, next)=>{
+  const userExists = await userModel.findOne({email : req.body.email});
+
+  if(userExists){
+     const checkPassword = await bcrypt.compare(req.body.password, userExists.password);
+     if(checkPassword){
+      await userModel.findOneAndUpdate({email : req.body.email}, {$set : {active : false}});
+     }else{
+      const error = new CustomError("Password incorrect", 400);
+      return next(error);
+    }
+  }else{
+    const error = new CustomError("User Not Found", 404);
+    return next(error);
+  }
+
+  resp.status(200).json({
+    status : "Success",
+    message : "Successfully logout"
+  })
+})
+
+
+exports.buyPremium = asyncErrorHandler(async (req, resp, next)=>{
+  const userExists = await userModel.findOne({email : req.body.email});
+  if(req.body.payMent){
+  if(userExists){
+     const checkPassword = await bcrypt.compare(req.body.password, userExists.password);
+     if(checkPassword){
+      await userModel.findOneAndUpdate({email : req.body.email}, {$set : {userType : "Subscribe"}});
+     }else{
+      const error = new CustomError("Password incorrect", 400);
+      return next(error);
+    }
+  }else{
+    const error = new CustomError("User Not Found", 404);
+    return next(error);
+  }
+}else{
+  const error = new CustomError("Pay payment for subscribe", 400);
+  return next(error);
+}
+
+  resp.status(200).json({
+    status : "Success",
+    message : "Successfully subscribe"
+  })
+})
+
+

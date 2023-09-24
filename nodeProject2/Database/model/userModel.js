@@ -31,9 +31,14 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Please enter your confirm password.']
     },
 
-    usertype : {
+    userType : {
         type : String,
         default : "user"
+    },
+
+    active :{
+        type : Boolean,
+        default : true
     },
 
     token : {
