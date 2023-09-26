@@ -28,17 +28,29 @@ exports.getAllMovies = asyncErrorHandler(async (req, resp, next) => {
   });
 });
 
-
-exports.getMovie = asyncErrorHandler(async (req, resp, next)=>{
+exports.getMovie = asyncErrorHandler(async (req, resp, next) => {
   const movie = await moviesModel.findById(req.params.id);
 
-  if(!movie){
-    const error = new CustomError("Movie Not Found", 404)
-    return next(error)
+  if (!movie) {
+    const error = new CustomError("Movie Not Found", 404);
+    return next(error);
   }
 
   resp.status(200).json({
-    status : "Success",
+    status: "Success",
     movie,
-  })
-})
+  });
+});
+
+exports.createMovie = asyncErrorHandler(async (req, resp, next) => {
+  const movie = await moviesModel.create(req.body);
+
+  
+  resp.status(200).json({
+    status: "Success",
+    data : {
+      movie
+    }
+  });
+
+});
