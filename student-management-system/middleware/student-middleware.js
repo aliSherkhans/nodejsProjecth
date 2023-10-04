@@ -18,6 +18,8 @@ async function studentValidator(req, resp, next, mobile) {
   }
 }
 
+
+
 async function checkStudent(resp, mobile) {
   const student = await studentModel.find({ mobile: mobile });
   if (student.length === 0) {

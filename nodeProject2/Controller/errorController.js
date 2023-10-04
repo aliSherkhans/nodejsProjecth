@@ -64,18 +64,18 @@ module.exports = (error, req, resp, next) => {
     if (error.name === "CastError") {
       error = castErrorHandler(error);
     }
-    if (error.code === 11000) {
+    else if (error.code === 11000) {
       error = duplicateKeyErrorHandler(error);
     }
-    if (error.name === "ValidationError") {
+    else if (error.name === "ValidationError") {
       error = validationErrorHandler(error);
     }
 
-    if (error.name === "ObjectParameterError") {
+    else if (error.name === "ObjectParameterError") {
       error = ObjectParameterError(error);
     }
 
-    if (error.name === "JsonWebTokenError") {
+    else if (error.name === "JsonWebTokenError") {
       error = JsonWebTokenError(error);
     }
 

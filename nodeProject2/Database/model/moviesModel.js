@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const fs = require("fs");
 const validator = require("validator");
+const path = require("path");
+const dotEnv = require("dotenv");
+dotEnv.config({path : "../.././config.env"})
 
 const movieSchema = new mongoose.Schema(
   {
